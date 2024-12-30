@@ -7,65 +7,113 @@
 
 
 
-#define LED_A_PIN		PB0
-#define LED_B_PIN		PB1
-#define LED_C_PIN		PB2
-#define LED_D_PIN		PB3
-#define LED_ON_PIN		PB4
+#define _LED_PORT 		PORTB
+#define _LED_DDR 		DDRB
 
-#define _NUMBER_ON_MS 500
-#define _NUMBER_OFF_MS 100
+#define _LED_A_PIN		PB0
+#define _LED_B_PIN		PB1
+#define _LED_C_PIN		PB2
+#define _LED_D_PIN		PB3
+#define _LED_ON_PIN		PB4
+
+#define _TIME_ON_MS 500
+#define _TIME_OFF_MS 100
 #define _PRECISION_DELAY_MS 800
 
 
 
 static uint8_t _val_to_port(uint8_t val)
 {
+	//compiles in to more commands than switch statement
+	// static const uint8_t map[] = {
+	// 	(1 << _LED_ON_PIN),
+	// 	(1 << _LED_ON_PIN) | (1 << _LED_A_PIN),
+	// 	(1 << _LED_ON_PIN) | (1 << _LED_B_PIN),
+	// 	(1 << _LED_ON_PIN) | (1 << _LED_A_PIN) | (1 << _LED_B_PIN),
+	// 	(1 << _LED_ON_PIN) | (1 << _LED_C_PIN),
+	// 	(1 << _LED_ON_PIN) | (1 << _LED_A_PIN) | (1 << _LED_C_PIN),
+	// 	(1 << _LED_ON_PIN) | (1 << _LED_B_PIN) | (1 << _LED_C_PIN),
+	// 	(1 << _LED_ON_PIN) | (1 << _LED_A_PIN) | (1 << _LED_B_PIN) | (1 << _LED_C_PIN),
+	// 	(1 << _LED_ON_PIN) | (1 << _LED_D_PIN),
+	// 	(1 << _LED_ON_PIN) | (1 << _LED_A_PIN) | (1 << _LED_D_PIN)
+	// };
+
+	// return map[val];
+
 	switch(val)
 	{
 		case 0:
-			return (1 << LED_ON_PIN);
+			return (1 << _LED_ON_PIN);
 
 		case 1:
-			return (1 << LED_ON_PIN) | (1 << LED_A_PIN);
+			return (1 << _LED_ON_PIN) | (1 << _LED_A_PIN);
 		
 		case 2:
-			return (1 << LED_ON_PIN) | (1 << LED_B_PIN);
+			return (1 << _LED_ON_PIN) | (1 << _LED_B_PIN);
 		
 		case 3:
-			return (1 << LED_ON_PIN) | (1 << LED_A_PIN) | (1 << LED_B_PIN);
+			return (1 << _LED_ON_PIN) | (1 << _LED_A_PIN) | (1 << _LED_B_PIN);
 		
 		case 4:
-			return (1 << LED_ON_PIN) | (1 << LED_C_PIN);
+			return (1 << _LED_ON_PIN) | (1 << _LED_C_PIN);
 		
 		case 5:
-			return (1 << LED_ON_PIN) | (1 << LED_A_PIN) | (1 << LED_C_PIN);
+			return (1 << _LED_ON_PIN) | (1 << _LED_A_PIN) | (1 << _LED_C_PIN);
 		
 		case 6:
-			return (1 << LED_ON_PIN) | (1 << LED_B_PIN) | (1 << LED_C_PIN);
+			return (1 << _LED_ON_PIN) | (1 << _LED_B_PIN) | (1 << _LED_C_PIN);
 		
 		case 7:
-			return (1 << LED_ON_PIN) | (1 << LED_A_PIN) | (1 << LED_B_PIN) | (1 << LED_C_PIN);
+			return (1 << _LED_ON_PIN) | (1 << _LED_A_PIN) | (1 << _LED_B_PIN) | (1 << _LED_C_PIN);
 		
 		case 8:
-			return (1 << LED_ON_PIN) | (1 << LED_D_PIN);
+			return (1 << _LED_ON_PIN) | (1 << _LED_D_PIN);
 		
 		case 9:
-			return (1 << LED_ON_PIN) | (1 << LED_A_PIN) | (1 << LED_D_PIN);
+			return (1 << _LED_ON_PIN) | (1 << _LED_A_PIN) | (1 << _LED_D_PIN);
+		
+		default:
+			return 0;
 	}
-
-	return 0;
 }
+
+static uint8_t _precision_to_value(uint8_t precision)
+{
+	const static uint8_t map[] = {0, 25, 50, 75};
+
+	return map[precision];
+
+	//compiles in to more commands
+	// switch (precision)
+	// {
+	// 	case 0:
+	// 		return 0;
+		
+	// 	case 1:
+	// 		return 25;
+		
+	// 	case 2:
+	// 		return 50;
+		
+	// 	case 3:
+	// 		return 75;
+
+	// 	default:
+	// 		return 0;;
+	// }
+}
+
+
 
 static void _turn_diod_on(uint8_t val)
 {
-	ONEWIRE_PORT = _val_to_port(val);
+	_LED_PORT = _val_to_port(val);
 }
 
 static void _turn_diod_off()
 {
-	ONEWIRE_DDR = ONEWIRE_DDR | (1 << LED_ON_PIN);
-	ONEWIRE_PORT = ONEWIRE_PORT & ~(1 << LED_ON_PIN);
+	_LED_DDR = _LED_DDR | (1 << _LED_ON_PIN);
+	_LED_PORT = _LED_PORT & ~(1 << _LED_ON_PIN);
 }
 
 
@@ -77,23 +125,21 @@ static void _show_number(int16_t number)
 
 	if(tens > 0){
 		_turn_diod_on(tens);
-		_delay_ms(_NUMBER_ON_MS);
+		_delay_ms(_TIME_ON_MS);
 
 		_turn_diod_off();
-		_delay_ms(_NUMBER_OFF_MS);
+		_delay_ms(_TIME_OFF_MS);
 	}
 
 	_turn_diod_on(ones);
-	_delay_ms(_NUMBER_ON_MS);
+	_delay_ms(_TIME_ON_MS);
 
 	_turn_diod_off();
-	_delay_ms(_NUMBER_OFF_MS);
+	_delay_ms(_TIME_OFF_MS);
 }
 
 static void _show_temperature(int16_t temperature, uint8_t precision)
 {
-	const uint8_t map[] = {0, 25, 50, 75};
-	
 	//show negative sign
 	if(temperature < 0){
 		for(uint8_t i = 0; i < 5; i++){
@@ -115,7 +161,7 @@ static void _show_temperature(int16_t temperature, uint8_t precision)
 	if(precision > 0){
 		//wait some delay for displaying next section
 		_delay_ms(_PRECISION_DELAY_MS);
-		_show_number(map[precision]);
+		_show_number(_precision_to_value(precision));
 	}
 }
 
@@ -123,25 +169,35 @@ static void _show_error(uint8_t error)
 {
 	for(uint8_t i = 0; i < 3; i++){
 		_turn_diod_on(error);
-		_delay_ms(_NUMBER_ON_MS);
+		_delay_ms(_TIME_ON_MS);
 
 		_turn_diod_off();
-		_delay_ms(_NUMBER_ON_MS);
+		_delay_ms(_TIME_ON_MS);
 	}
 }
 
 
 
-int main() {
-	ONEWIRE_DDR = (1 << LED_A_PIN) | (1 << LED_B_PIN) |
-		(1 << LED_C_PIN) | (1 << LED_D_PIN);
+static void _initialize()
+{
+	//set display outputs
+	_LED_DDR = (1 << _LED_A_PIN) | (1 << _LED_B_PIN) |
+		(1 << _LED_C_PIN) | (1 << _LED_D_PIN);
 
 	_turn_diod_off();
 
+	//wait for DS18B20 startup
 	_delay_ms(200);
 
 	// Initialize One-Wire interface
 	onewire_init();
+}
+
+
+
+int main()
+{
+	_initialize();
 
     // Example usage: Reset and check presence pulse
     if (onewire_reset()) {
