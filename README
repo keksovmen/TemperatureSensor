@@ -1,0 +1,10 @@
+# Portable temperature sensor with display on ATtiny13
+
+## DS18B20 - temperature sensor
+- Work by bit banging one wire interface
+- Precision is +- 0.25 C
+
+## 7 segment display driven by CD4511
+
+- Negative sign is show as 5 times fast blink of 0
+- +- 0.25 fraction is show after the main temperature, it is delayed by some time
