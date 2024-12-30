@@ -94,17 +94,26 @@ static void _show_temperature(int16_t temperature, uint8_t precision)
 {
 	const uint8_t map[] = {0, 25, 50, 75};
 	
-		// if(temperature > 0){
-		// 	_turn_minus_on();
-		// 	_delay_ms(1000);
-		// }
+	//show negative sign
+	if(temperature < 0){
+		for(uint8_t i = 0; i < 5; i++){
+			_turn_diod_on(0);
+			_delay_ms(100);
 
+			_turn_diod_off();
+			_delay_ms(100);
+		}
+	}
+
+	//wait some time for beginning of show case
 	_turn_diod_off();
 	_delay_ms(300);
 
+	//show main temperature
 	_show_number(temperature);
 
 	if(precision > 0){
+		//wait some delay for displaying next section
 		_delay_ms(_PRECISION_DELAY_MS);
 		_show_number(map[precision]);
 	}
@@ -153,6 +162,10 @@ int main() {
         
         // Combine MSB and LSB to get the temperature
         const int16_t combined = (temp_msb << 8) | temp_lsb;
+
+        // Convert to Celsius (assuming 12-bit resolution)
+        const int16_t temperature = abs(combined >> 4);
+
 		// get 0.25 +- precision
 		uint8_t precision = temp_lsb & 0x0F;
 		if(combined < 0){
@@ -160,9 +173,6 @@ int main() {
 		}
 		precision = precision >> 2;
         
-        // Convert to Celsius (assuming 12-bit resolution)
-        const int16_t temperature = abs(combined >> 4);
-
 		_show_temperature(temperature, precision);
     }
 	else
