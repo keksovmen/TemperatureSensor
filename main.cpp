@@ -118,6 +118,17 @@ static void _turn_diod_off()
 
 
 
+static void _show_error(uint8_t error)
+{
+	for(uint8_t i = 0; i < 3; i++){
+		_turn_diod_on(error);
+		_delay_ms(_TIME_ON_MS);
+
+		_turn_diod_off();
+		_delay_ms(_TIME_ON_MS);
+	}
+}
+
 static void _show_number(int16_t number)
 {
 	const uint8_t tens = number / 10;
@@ -162,17 +173,6 @@ static void _show_temperature(int16_t temperature, uint8_t precision)
 		//wait some delay for displaying next section
 		_delay_ms(_PRECISION_DELAY_MS);
 		_show_number(_precision_to_value(precision));
-	}
-}
-
-static void _show_error(uint8_t error)
-{
-	for(uint8_t i = 0; i < 3; i++){
-		_turn_diod_on(error);
-		_delay_ms(_TIME_ON_MS);
-
-		_turn_diod_off();
-		_delay_ms(_TIME_ON_MS);
 	}
 }
 
@@ -226,14 +226,26 @@ int main()
 		uint8_t precision = temp_lsb & 0x0F;
 		if(combined < 0){
 			precision = ~(precision - 1);
+			precision = precision & 0x0F;
 		}
 		precision = precision >> 2;
-        
-		_show_temperature(temperature, precision);
+
+		//for debugging
+		if(precision > 3){
+			_show_error(7);
+		}else{
+			_show_temperature(temperature, precision);
+		}
     }
 	else
 	{
-		_show_error(1);
+		for(uint8_t i = 0; i < 10; i++){
+			_turn_diod_on(i);
+			_delay_ms(_TIME_ON_MS);
+
+			_turn_diod_off();
+			_delay_ms(_TIME_ON_MS);
+		}
 	}
 
 	_turn_diod_off();
