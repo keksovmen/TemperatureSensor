@@ -167,7 +167,7 @@ static void _show_temperature(int16_t temperature, uint8_t precision)
 	_delay_ms(300);
 
 	//show main temperature
-	_show_number(temperature);
+	_show_number(abs(temperature));
 
 	if(precision > 0){
 		//wait some delay for displaying next section
@@ -220,7 +220,7 @@ int main()
         const int16_t combined = (temp_msb << 8) | temp_lsb;
 
         // Convert to Celsius (assuming 12-bit resolution)
-        const int16_t temperature = abs(combined >> 4);
+        const int16_t temperature = combined >> 4;
 
 		// get 0.25 +- precision
 		uint8_t precision = temp_lsb & 0x0F;
